@@ -144,13 +144,14 @@ class IController extends IControllerBase
 		//2,控制器内部动作
 		else if(method_exists($this,$actionId) || is_callable($this->$actionId))
 		{
-			$this->action = new IInlineAction($this,$actionId);
+			$this->action = new IInlineAction($this,$actionId);//在这里面反调控制器方法
 		}
 		//3,视图动作
 		else
 		{
 			$this->action = new IViewAction($this,$actionId);
 		}
+
 		return $this->action;
 	}
 

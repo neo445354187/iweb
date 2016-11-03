@@ -14,7 +14,7 @@
  */
 abstract class IApplication
 {
-	//应用的名称
+    //应用的名称
     public $name = 'iWebShop';
 
     //应用的编码
@@ -23,11 +23,11 @@ abstract class IApplication
     //应用的语言
     public $language = 'zh_sc';
 
-	//默认语言包目录
+    //默认语言包目录
     public $defaultLanguageDir = "language";
 
     //程序运行的实际路径
-	public $runtimePath;
+    public $runtimePath;
 
     //应用的config信息
     public $config;
@@ -35,8 +35,8 @@ abstract class IApplication
     //应用位置实际路径
     protected $basePath;
 
-	//默认控制器名称
-	protected $defaultController = 'site';
+    //默认控制器名称
+    protected $defaultController = 'site';
 
     //渲染时的数据
     private $renderData = array();
@@ -47,39 +47,35 @@ abstract class IApplication
      */
     public function __construct($config)
     {
-		if(version_compare(PHP_VERSION, '5.4.1', '<'))
-		{
-			die('Your host needs to use PHP 5.4 or higher to run this version of iWebShop!');
-		}
+        if (version_compare(PHP_VERSION, '5.4.1', '<')) {
+            die('Your host needs to use PHP 5.4 or higher to run this version of iWebShop!');
+        }
 
-    	IWeb::setApplication($this);
+        IWeb::setApplication($this);
 
-    	if(is_string($config) && is_file($config))
-    	{
-    		$config = require($config);
-    	}
-
+        if (is_string($config) && is_file($config)) {
+            $config = require $config;
+        }
+        //把配置放在了这个上
         $this->config = is_array($config) ? $config : array();
 
-		//配置文件中设置实际路径
-		if(isset($this->config['basePath']) && $this->config['basePath'])
-		{
-			$this->basePath = $this->config['basePath'];
-		}
+        //配置文件中设置实际路径
+        if (isset($this->config['basePath']) && $this->config['basePath']) {
+            $this->basePath = $this->config['basePath'];
+        }
 
-		date_default_timezone_set(isset($config['timezone']) ? $config['timezone'] : 'Asia/Shanghai');
-		IWeb::setClasses(isset($config['classes']) ? $config['classes'] : 'classes.*');
-		$this->charset  = isset($config['charset']) ? $config['charset'] : $this->charset;
-		$this->language = isset($config['lang']) ? $config['lang'] : $this->language;
-		$this->setDebugMode($config['debug']);
-		$this->defaultLanguageDir = isset($config['langPath']) ? $config['langPath'] : $this->defaultLanguageDir;
+        date_default_timezone_set(isset($config['timezone']) ? $config['timezone'] : 'Asia/Shanghai');
+        IWeb::setClasses(isset($config['classes']) ? $config['classes'] : 'classes.*');
+        $this->charset  = isset($config['charset']) ? $config['charset'] : $this->charset;
+        $this->language = isset($config['lang']) ? $config['lang'] : $this->language;
+        $this->setDebugMode($config['debug']);
+        $this->defaultLanguageDir = isset($config['langPath']) ? $config['langPath'] : $this->defaultLanguageDir;
 
-		//开始向拦截器里注册类
-		if( isset($config['interceptor']) && is_array($config['interceptor']) )
-		{
-			IInterceptor::reg($config['interceptor']);
-			register_shutdown_function(array('IInterceptor',"shutDown"));
-		}
+        //开始向拦截器里注册类
+        if (isset($config['interceptor']) && is_array($config['interceptor'])) {
+            IInterceptor::reg($config['interceptor']);
+            register_shutdown_function(array('IInterceptor', "shutDown")); //所以即使die/exit都会执行
+        }
     }
 
     //执行请求
@@ -90,9 +86,9 @@ abstract class IApplication
      */
     public function run()
     {
-		IInterceptor::run("onCreateApp");
+        IInterceptor::run("onCreateApp");
         $this->execRequest();
-		IInterceptor::run("onFinishApp");
+        IInterceptor::run("onFinishApp");
     }
 
     /**
@@ -101,38 +97,37 @@ abstract class IApplication
      */
     private function setDebugMode($flag)
     {
-    	switch($flag)
-    	{
-    		//部分
-    		case 1:
-    		{
-    			ini_set("display_errors","on");
-    			IException::setDebugMode(true);
-    			error_reporting(E_ERROR | E_PARSE);
-    			set_error_handler("IException::phpError",E_ERROR | E_PARSE | E_WARNING);
-    		}
-    		break;
+        switch ($flag) {
+            //部分
+            case 1:
+                {
+                    ini_set("display_errors", "on");
+                    IException::setDebugMode(true);
+                    error_reporting(E_ERROR | E_PARSE);
+                    set_error_handler("IException::phpError", E_ERROR | E_PARSE | E_WARNING);
+                }
+                break;
 
-			//全部
-    		case 2:
-    		{
-    			ini_set("display_errors","on");
-    			IException::setDebugMode(true);
-    			error_reporting(E_ALL | E_STRICT);
-    			set_error_handler("IException::phpError" ,E_ALL | E_STRICT );
-    		}
-    		break;
+            //全部
+            case 2:
+                {
+                    ini_set("display_errors", "on");
+                    IException::setDebugMode(true);
+                    error_reporting(E_ALL | E_STRICT);
+                    set_error_handler("IException::phpError", E_ALL | E_STRICT);
+                }
+                break;
 
-			//关闭
-    		default:
-    		{
-    			ini_set("display_errors","off");
-    			IException::setDebugMode(false);
-    			error_reporting(0);
-    			set_error_handler("IException::phpError" ,E_ALL | E_STRICT );
-    		}
-    	}
-		set_exception_handler("IException::phpException");
+            //关闭
+            default:
+                {
+                    ini_set("display_errors", "off");
+                    IException::setDebugMode(false);
+                    error_reporting(0);
+                    set_error_handler("IException::phpError", E_ALL | E_STRICT);
+                }
+        }
+        set_exception_handler("IException::phpException");
     }
 
     /**
@@ -149,21 +144,20 @@ abstract class IApplication
      */
     public function getRuntimePath()
     {
-        if($this->runtimePath == null)
-        {
-            $this->runtimePath = $this->getBasePath().'runtime'.DIRECTORY_SEPARATOR;
+        if ($this->runtimePath == null) {
+            $this->runtimePath = $this->getBasePath() . 'runtime' . DIRECTORY_SEPARATOR;
         }
         return $this->runtimePath;
-	}
+    }
 
     /**
      * @brief 得到当前的语言包实际路径
      * @return String 实际路径
      */
-	public function getLanguagePath()
-	{
-        return $this->getBasePath().$this->defaultLanguageDir.DIRECTORY_SEPARATOR;
-	}
+    public function getLanguagePath()
+    {
+        return $this->getBasePath() . $this->defaultLanguageDir . DIRECTORY_SEPARATOR;
+    }
 
     /**
      * @brief 设置渲染数据
@@ -171,9 +165,8 @@ abstract class IApplication
      */
     public function setRenderData($data)
     {
-        if(is_array($data))
-        {
-            $this->renderData = array_merge($this->renderData,$data);
+        if (is_array($data)) {
+            $this->renderData = array_merge($this->renderData, $data);
         }
     }
     /**

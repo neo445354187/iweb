@@ -1,6 +1,4 @@
 <?php
-$iweb = dirname(__FILE__)."/lib/iweb.php";
-$config = dirname(__FILE__)."/config/config.php";
-require($iweb);
+$config = __DIR__ . "/config/config.php";
+require __DIR__ . "/lib/iweb.php";
 IWeb::createWebApp($config)->run();
-?>
